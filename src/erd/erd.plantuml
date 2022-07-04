@@ -1,0 +1,48 @@
+@startuml
+
+entity Project{
+*id: string <<generated>>
+*name: string
+*ownerId: string <<FK>>
+createdAt: date
+updatedAt: date
+}
+
+
+entity User{
+*id: string <<generated>>
+*email: string
+*password: string
+role: string
+createdAt: date
+updatedAt: date
+}
+
+entity ProjectUser{
+*id: string <<generated>>
+*projectId: string <<FK>>
+*userId: string <<FK>>
+createdAt: date
+updatedAt: date
+}
+
+entity Todo{
+*id: string <<generated>>
+*title: string
+*status: Status
+*projectId: string<<FK>>
+*author: string<<FK>>
+linkedTodo: string <<FK>>
+completedAt: date
+createdAt: date
+updatedAt: date
+}
+
+Project ||..o| User
+Project  ||..o{ ProjectUser
+User  ||..o{ ProjectUser
+User  ||..o{ Todo
+Project  ||..o{ Todo
+Todo |o..o| Todo
+
+@enduml
