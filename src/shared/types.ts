@@ -3,9 +3,9 @@ const enum Role {
   USER = 'user',
 }
 
-const enum Status {
+export enum Status {
   TODO = 'todo',
   IN_PROGRESS = 'inProgress',
   COMPLETE = 'complete',
 }
-export {Role, Status};
+export {Role};

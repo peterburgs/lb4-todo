@@ -27,10 +27,7 @@ import {MyUserService} from './services/user-service';
 import {MyTodoService} from './services/todo-service';
 export {ApplicationConfig};
 
-// const authorizationOptions: AuthorizationOptions = {
-//   precedence: AuthorizationDecision.DENY,
-//   defaultDecision: AuthorizationDecision.DENY,
-// };
+
 
 export class TodoApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
@@ -43,7 +40,7 @@ export class TodoApplication extends BootMixin(
     this.component(JWTAuthenticationComponent);
     this.component(AuthorizationComponent);
 
-    this.setupBinding();
+    this.setupBindings();
 
     // Set up the custom sequence
     this.sequence(MySequence);
@@ -69,7 +66,7 @@ export class TodoApplication extends BootMixin(
     };
   }
 
-  setupBinding(): void {
+  setupBindings(): void {
     this.bind(PasswordHasherBindings.ROUNDS).to(10);
     this.bind(PasswordHasherBindings.PASSWORD_HASHER).toClass(BcryptHasher);
     this.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(JWTService);

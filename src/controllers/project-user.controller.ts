@@ -1,18 +1,20 @@
 import {authenticate} from '@loopback/authentication';
 import {authorize} from '@loopback/authorization';
+import {Filter, FilterExcludingWhere, repository} from '@loopback/repository';
 import {
-  Filter,
-  FilterExcludingWhere,
-  repository
-} from '@loopback/repository';
-import {
-  del, get,
-  getModelSchemaRef, param, post, put, requestBody,
-  response
+  del,
+  get,
+  getModelSchemaRef,
+  param,
+  post,
+  put,
+  requestBody,
+  response,
 } from '@loopback/rest';
 import {ProjectUser} from '../models';
 import {ProjectUserRepository} from '../repositories';
 import {basicAuthorization} from '../services/basic.authorizor';
+import {Role} from '../shared/types';
 
 export class ProjectUserController {
   constructor(
@@ -26,7 +28,10 @@ export class ProjectUserController {
     content: {'application/json': {schema: getModelSchemaRef(ProjectUser)}},
   })
   @authenticate('jwt')
-  @authorize({allowedRoles: ['admin', 'user'], voters: [basicAuthorization]})
+  @authorize({
+    allowedRoles: [Role.ADMIN, Role.USER],
+    voters: [basicAuthorization],
+  })
   async create(
     @requestBody({
       content: {
@@ -83,7 +88,10 @@ export class ProjectUserController {
     description: 'ProjectUser PUT success',
   })
   @authenticate('jwt')
-  @authorize({allowedRoles: ['admin', 'user'], voters: [basicAuthorization]})
+  @authorize({
+    allowedRoles: [Role.ADMIN, Role.USER],
+    voters: [basicAuthorization],
+  })
   async replaceById(
     @param.path.string('id') id: string,
     @requestBody() projectUser: ProjectUser,
@@ -96,7 +104,7 @@ export class ProjectUserController {
     description: 'ProjectUser DELETE success',
   })
   @authenticate('jwt')
-  @authorize({allowedRoles: ['admin', 'user'], voters: [basicAuthorization]})
+  @authorize({allowedRoles: [Role.ADMIN, Role.USER], voters: [basicAuthorization]})
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.projectUserRepository.deleteById(id);
   }
