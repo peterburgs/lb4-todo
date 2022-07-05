@@ -24,6 +24,7 @@ import {basicAuthorization} from '../services/basic.authorizor';
 import {BcryptHasher} from '../services/hash.password.bcrypt';
 import {JWTService} from '../services/jwt.service';
 import {MyUserService} from '../services/user-service';
+import {Role} from '../shared/types';
 
 export class UserController {
   constructor(
@@ -55,6 +56,8 @@ export class UserController {
       },
     },
   })
+  @authenticate('jwt')
+  @authorize({allowedRoles: [Role.ADMIN]})
   async find(@param.filter(User) filter?: Filter<User>): Promise<User[]> {
     return this.userRepository.find(filter);
   }
@@ -79,6 +82,8 @@ export class UserController {
   @response(204, {
     description: 'User PUT success',
   })
+  @authenticate('jwt')
+  @authorize({allowedRoles: [Role.ADMIN], voters: [basicAuthorization]})
   async replaceById(
     @param.path.string('id') id: string,
     @requestBody() user: User,
@@ -91,7 +96,10 @@ export class UserController {
     description: 'User DELETE success',
   })
   @authenticate('jwt')
-  @authorize({allowedRoles: ['user', 'admin'], voters: [basicAuthorization]})
+  @authorize({
+    allowedRoles: [Role.USER, Role.ADMIN],
+    voters: [basicAuthorization],
+  })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.userRepository.deleteById(id);
   }
@@ -153,6 +161,6 @@ export class UserController {
 
     const token = await this.jwtService.generateToken(userProfile);
 
-    return Promise.resolve({token});
+    return {token};
   }
 }

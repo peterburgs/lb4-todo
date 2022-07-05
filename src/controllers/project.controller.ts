@@ -14,6 +14,7 @@ import {
 import {Project} from '../models';
 import {ProjectRepository} from '../repositories';
 import {basicAuthorization} from '../services/basic.authorizor';
+import {Role} from '../shared/types';
 
 export class ProjectController {
   constructor(
@@ -27,7 +28,10 @@ export class ProjectController {
     content: {'application/json': {schema: getModelSchemaRef(Project)}},
   })
   @authenticate('jwt')
-  @authorize({allowedRoles: ['admin', 'user'], voters: [basicAuthorization]})
+  @authorize({
+    allowedRoles: [Role.ADMIN, Role.USER],
+    voters: [basicAuthorization],
+  })
   async create(
     @requestBody({
       content: {
@@ -56,6 +60,11 @@ export class ProjectController {
       },
     },
   })
+  @authenticate('jwt')
+  @authorize({
+    allowedRoles: [Role.ADMIN, Role.USER],
+    voters: [basicAuthorization],
+  })
   async find(
     @param.filter(Project) filter?: Filter<Project>,
   ): Promise<Project[]> {
@@ -71,6 +80,11 @@ export class ProjectController {
       },
     },
   })
+  @authenticate('jwt')
+  @authorize({
+    allowedRoles: [Role.ADMIN, Role.USER],
+    voters: [basicAuthorization],
+  })
   async findById(
     @param.path.string('id') id: string,
     @param.filter(Project, {exclude: 'where'})
@@ -84,7 +98,10 @@ export class ProjectController {
     description: 'Project PUT success',
   })
   @authenticate('jwt')
-  @authorize({allowedRoles: ['admin', 'user'], voters: [basicAuthorization]})
+  @authorize({
+    allowedRoles: [Role.ADMIN, Role.USER],
+    voters: [basicAuthorization],
+  })
   async replaceById(
     @param.path.string('id') id: string,
     @requestBody() project: Project,
@@ -97,7 +114,10 @@ export class ProjectController {
     description: 'Project DELETE success',
   })
   @authenticate('jwt')
-  @authorize({allowedRoles: ['admin', 'user'], voters: [basicAuthorization]})
+  @authorize({
+    allowedRoles: [Role.ADMIN, Role.USER],
+    voters: [basicAuthorization],
+  })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.projectRepository.deleteById(id);
   }

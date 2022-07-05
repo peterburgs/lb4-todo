@@ -42,7 +42,7 @@ export class User extends Entity {
   projectUsers: ProjectUser[];
 
   @hasMany(() => Project, {keyTo: 'ownerId'})
-  projects: Project[];
+  ownedProjects: Project[];
 
   constructor(data?: Partial<User>) {
     super(data);
@@ -50,7 +50,8 @@ export class User extends Entity {
 }
 
 export interface UserRelations {
-  // describe navigational properties here
+  projectUsers?: ProjectUser[];
+  ownedProjects?: Project[];
 }
 
 export type UserWithRelations = User & UserRelations;

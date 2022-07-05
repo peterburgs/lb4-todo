@@ -1,4 +1,4 @@
-import {Entity, model, property, belongsTo, hasOne} from '@loopback/repository';
+import {Entity, model, property, belongsTo} from '@loopback/repository';
 import {Status} from '../shared/types';
 import {Project} from './project.model';
 import {User} from './user.model';
@@ -21,23 +21,22 @@ export class Todo extends Entity {
   @property({
     type: 'string',
     default: Status.TODO,
-    in: [Status.TODO, Status.IN_PROGRESS, Status.COMPLETE],
+    jsonSchema: {
+      enum: Object.values(Status),
+    },
   })
-  status?: string;
+  status?: Status;
 
   @property({
     type: 'date',
   })
-  completedAt?: string;
+  completedAt?: Date;
 
   @belongsTo(() => Project)
   projectId: string;
 
   @belongsTo(() => User)
   userId: string;
-
-  @hasOne(() => Todo)
-  linkedTodo: Todo;
 
   @property({
     type: 'string',
@@ -50,7 +49,8 @@ export class Todo extends Entity {
 }
 
 export interface TodoRelations {
-  // describe navigational properties here
+  projectId?: Project;
+  todoId?: Todo;
 }
 
 export type TodoWithRelations = Todo & TodoRelations;

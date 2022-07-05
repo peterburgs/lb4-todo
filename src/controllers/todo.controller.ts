@@ -21,6 +21,7 @@ import {TodoRepository} from '../repositories';
 import {basicAuthorization} from '../services/basic.authorizor';
 import {JWTService} from '../services/jwt.service';
 import {MyTodoService} from '../services/todo-service';
+import {Role} from '../shared/types';
 
 export class TodoController {
   constructor(
@@ -43,7 +44,10 @@ export class TodoController {
     content: {'application/json': {schema: getModelSchemaRef(Todo)}},
   })
   @authenticate('jwt')
-  @authorize({allowedRoles: ['user', 'admin'], voters: [basicAuthorization]})
+  @authorize({
+    allowedRoles: [Role.USER, Role.ADMIN],
+    voters: [basicAuthorization],
+  })
   async create(
     @requestBody({
       content: {
@@ -70,14 +74,24 @@ export class TodoController {
     },
   })
   @authenticate('jwt')
-  @authorize({allowedRoles: ['admin', 'user'], voters: [basicAuthorization]})
+  @authorize({
+    allowedRoles: [Role.ADMIN, Role.USER],
+    voters: [basicAuthorization],
+  })
   async findById(
     @param.path.string('id') id: string,
     @param.filter(Todo, {exclude: 'where'}) filter?: FilterExcludingWhere<Todo>,
   ): Promise<Todo> {
-    const token = this.context.request.headers.authorization!.split(' ')[1];
+    if (!this.context.request.headers.authorization) {
+      throw new HttpErrors.Unauthorized('Token is required');
+    }
+    const token = this.context.request.headers.authorization.split(' ')[1];
 
-    const isAuthorizedTodo = await this.todoService.authorizeTodo(token, id);
+    const isAuthorizedTodo = await this.todoService.isAllowToGetTodoById(
+      token,
+      id,
+    );
+
     if (isAuthorizedTodo) {
       return this.todoRepository.findById(id, filter);
     } else {
@@ -98,15 +112,15 @@ export class TodoController {
     },
   })
   @authenticate('jwt')
-  @authorize({allowedRoles: ['admin', 'user'], voters: [basicAuthorization]})
+  @authorize({
+    allowedRoles: [Role.ADMIN, Role.USER],
+    voters: [basicAuthorization],
+  })
   async find(@param.filter(Todo) filter?: Filter<Todo>): Promise<Todo[]> {
     try {
       const token = this.context.request.headers.authorization!.split(' ')[1];
 
-      const todos = await this.todoRepository.find(filter);
-      return todos.filter(async item =>
-        this.todoService.authorizeTodo(token, item.id!),
-      );
+      return await this.todoService.getTodoByUser(token, filter);
     } catch (error) {
       throw new HttpErrors.NotFound();
     }
@@ -117,7 +131,10 @@ export class TodoController {
     description: 'Todo PUT success',
   })
   @authenticate('jwt')
-  @authorize({allowedRoles: ['admin', 'user'], voters: [basicAuthorization]})
+  @authorize({
+    allowedRoles: [Role.ADMIN, Role.USER],
+    voters: [basicAuthorization],
+  })
   async replaceById(
     @param.path.string('id') id: string,
     @requestBody() todo: Todo,
@@ -130,33 +147,42 @@ export class TodoController {
     description: 'Todo DELETE success',
   })
   @authenticate('jwt')
-  @authorize({allowedRoles: ['admin', 'user'], voters: [basicAuthorization]})
+  @authorize({
+    allowedRoles: [Role.ADMIN, Role.USER],
+    voters: [basicAuthorization],
+  })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.todoRepository.deleteById(id);
   }
 
-  @post('/todos/link/{id}')
+  @post('/todos/{sourceId}/link/{targetId}')
   @response(204, {
     description: 'Link todo',
   })
   @authenticate('jwt')
-  @authorize({allowedRoles: ['admin', 'user'], voters: [basicAuthorization]})
+  @authorize({
+    allowedRoles: [Role.ADMIN, Role.USER],
+    voters: [basicAuthorization],
+  })
   async linkTodo(
-    @param.path.string('id') sourceTodoId: string,
-    @requestBody() toLinkTodoId: string,
+    @param.path.string('sourceId') sourceId: string,
+    @param.path.string('targetId') targetId: string,
   ): Promise<void> {
-    await this.todoService.linkTodo(sourceTodoId, toLinkTodoId);
+    await this.todoService.linkTodo(sourceId, targetId);
   }
 
-  @post('/todos/unlink/{id}')
+  @post('/todos/{sourceId}/unlink')
   @response(200, {
-    description: 'Link todo',
+    description: 'Unlink todo',
   })
   @authenticate('jwt')
-  @authorize({allowedRoles: ['admin', 'user'], voters: [basicAuthorization]})
+  @authorize({
+    allowedRoles: [Role.ADMIN, Role.USER],
+    voters: [basicAuthorization],
+  })
   async unlinkTodo(
-    @param.path.string('id') sourceTodoId: string,
+    @param.path.string('sourceId') sourceId: string,
   ): Promise<void> {
-    await this.todoService.unlinkTodo(sourceTodoId);
+    await this.todoService.unlinkTodo(sourceId);
   }
 }

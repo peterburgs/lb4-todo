@@ -10,12 +10,15 @@ export class JWTStrategy implements AuthenticationStrategy {
     @inject(TokenServiceBindings.TOKEN_SERVICE)
     public jwtService: JWTService,
   ) {}
+
   name = 'jwt';
+
   async authenticate(request: Request): Promise<UserProfile | undefined> {
     const token: string = this.extractCredentials(request);
     const userProfile = await this.jwtService.verifyToken(token);
     return Promise.resolve(userProfile);
   }
+
   extractCredentials(request: Request): string {
     if (!request.headers.authorization) {
       throw new HttpErrors.Unauthorized('Authorization is required');

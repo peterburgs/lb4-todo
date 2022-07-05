@@ -1,4 +1,10 @@
-import {Entity, model, property, hasMany, belongsTo} from '@loopback/repository';
+import {
+  Entity,
+  model,
+  property,
+  hasMany,
+  belongsTo,
+} from '@loopback/repository';
 import {ProjectUser} from './project-user.model';
 import {Todo} from './todo.model';
 import {User} from './user.model';
@@ -17,7 +23,7 @@ export class Project extends Entity {
     required: true,
   })
   name: string;
-  
+
   @hasMany(() => ProjectUser)
   projectUsers: ProjectUser[];
 
@@ -33,7 +39,9 @@ export class Project extends Entity {
 }
 
 export interface ProjectRelations {
-  // describe navigational properties here
+  projectUsers?: ProjectUser[];
+  todos?: Todo[];
+  ownerId?: User;
 }
 
 export type ProjectWithRelations = Project & ProjectRelations;

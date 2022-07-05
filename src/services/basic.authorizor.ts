@@ -28,24 +28,23 @@ export async function basicAuthorization(
   } else {
     return AuthorizationDecision.DENY;
   }
+
   if (!currentUser.role) {
     return AuthorizationDecision.DENY;
   }
+
   if (!metadata.allowedRoles) {
     return AuthorizationDecision.ALLOW;
   }
 
-  let roleIsAllowed = false;
-  if (metadata.allowedRoles!.includes(currentUser.role)) {
-    roleIsAllowed = true;
-    return AuthorizationDecision.ALLOW;
-  }
-  if (!roleIsAllowed) {
-    return AuthorizationDecision.DENY;
-  }
   if (currentUser.role === Role.ADMIN) {
     return AuthorizationDecision.ALLOW;
   }
+
+  if (metadata.allowedRoles!.includes(currentUser.role)) {
+    return AuthorizationDecision.ALLOW;
+  }
+
   if (currentUser[securityId] === authorizationCtx.invocationContext.args[0]) {
     return AuthorizationDecision.ALLOW;
   }

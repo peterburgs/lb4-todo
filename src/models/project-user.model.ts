@@ -23,7 +23,8 @@ export class ProjectUser extends Entity {
 }
 
 export interface ProjectUserRelations {
-  // describe navigational properties here
+  userId?: User;
+  projectId?: Project;
 }
 
 export type ProjectUserWithRelations = ProjectUser & ProjectUserRelations;
